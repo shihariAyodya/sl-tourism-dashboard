@@ -6,7 +6,7 @@ An interactive web dashboard of monthly tourist arrivals to Sri Lanka (2023–20
 
 This is the web version of my **[Sri Lanka Tourism Data Analysis](https://github.com/shihariAyodya/sri-lanka-tourism-analysis)** project, where the data was cleaned with Python, analyzed with MySQL and first visualized in Power BI.
 
-![Dashboard screenshot](screenshot.png)
+![Dashboard overview](images/overview.png)
 
 ---
 
@@ -20,6 +20,22 @@ This is the web version of my **[Sri Lanka Tourism Data Analysis](https://github
 - **Key insights and recommendations** for tourism businesses
 - **Light and dark theme,** remembered between visits
 - **Responsive layout** for desktop, tablet and phone
+
+---
+
+## 📸 Screenshots
+
+**Top 10 source markets and arrivals by year**
+![Top markets](images/top-markets.png)
+
+**Monthly seasonality**
+![Seasonality](images/seasonality.png)
+
+**Market growth (2023 → 2025)**
+![Growth table](images/growth-table.png)
+
+**Key insights and recommendations**
+![Insights](images/insights.png)
 
 ---
 
@@ -54,6 +70,7 @@ Then open http://localhost:5173
 
 ## 📁 Structure
 ```text
+├── images/                     # Screenshots for this README
 ├── public/
 │   └── data/tourism_long.csv   # Clean dataset
 ├── src/
