@@ -229,11 +229,11 @@ function App() {
         <section className="mt-6">
           <h2 className="text-lg font-semibold text-white">Key Insights & Recommendations</h2>
           <p className="mb-4 text-xs text-slate-500">Based on all 3 years of data (2023–2025)</p>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="flex flex-wrap justify-center gap-4">
             {INSIGHTS.map((item) => (
               <div
                 key={item.title}
-                className="rounded-2xl border border-slate-800 bg-slate-900 p-5"
+                className="w-full rounded-2xl border border-slate-800 bg-slate-900 p-5 md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)]"
               >
                 <span className="rounded-full bg-teal-500/10 px-2.5 py-1 text-xs font-medium text-teal-400">
                   {item.tag}
@@ -285,7 +285,7 @@ function App() {
             subtitle="Selected year is highlighted"
             className="lg:col-span-2"
           >
-            <ResponsiveContainer width="100%" height={560}>
+            <ResponsiveContainer width="100%" height={490}>
               <BarChart data={byYear}>
                 <CartesianGrid stroke="#1e293b" vertical={false} />
                 <XAxis dataKey="year" stroke="#64748b" tick={{ fontSize: 12 }} />
