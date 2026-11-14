@@ -1,0 +1,77 @@
+.dashboard {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  text-align: left;
+}
+
+/* Year buttons */
+.year-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.year-buttons button {
+  padding: 8px 20px;
+  border: 1px solid #14b8a6;
+  background: transparent;
+  color: #9ca3af;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.year-buttons button.active {
+  background: #14b8a6;
+  color: white;
+}
+
+/* KPI cards */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.card {
+  background: #1f2937;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.card .label {
+  margin: 0;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.card .value {
+  margin: 4px 0 0;
+  color: #c084fc;
+  font-size: 26px;
+  font-weight: bold;
+}
+
+/* Charts */
+.charts {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.chart-box {
+  background: #1f2937;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.chart-box h3 {
+  margin: 0 0 12px;
+  font-size: 16px;
+}
+
+.chart-box.full {
+  margin-top: 20px;
+}
