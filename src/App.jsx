@@ -97,10 +97,10 @@ const BOX = 'rounded-2xl border border-slate-200/70 bg-white shadow-[0_1px_2px_r
 // A reusable KPI card
 function KpiCard({ label, value, note, color = 'text-slate-900 dark:text-white', accent = 'bg-slate-400' }) {
   return (
-    <div className={`${BOX} relative overflow-hidden p-5`}>
+    <div className={`${BOX} relative overflow-hidden p-4 sm:p-5`}>
       <span className={`absolute inset-y-0 left-0 w-1 ${accent}`} />
       <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
-      <p className={`mt-2 text-3xl font-bold ${color}`}>{value}</p>
+      <p className={`mt-2 break-words text-xl font-bold sm:text-2xl lg:text-3xl ${color}`}>{value}</p>
       <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">{note}</p>
     </div>
   )
@@ -109,7 +109,7 @@ function KpiCard({ label, value, note, color = 'text-slate-900 dark:text-white',
 // A reusable box with a title, used around every chart
 function Panel({ title, subtitle, children, className = '' }) {
   return (
-    <div className={`${BOX} p-5 ${className}`}>
+    <div className={`${BOX} p-4 sm:p-5 ${className}`}>
       <h2 className="text-base font-semibold text-slate-900 dark:text-white">{title}</h2>
       {subtitle && <p className="mb-4 text-xs text-slate-400 dark:text-slate-500">{subtitle}</p>}
       {children}
@@ -174,6 +174,13 @@ function App() {
     formatter: (v) => v.toLocaleString(),
   }
 
+  // Y-axis labels drawn from the left edge, so they line up with the titles
+  const leftTick = (format) => ({ y, payload }) => (
+    <text x={0} y={y} dy={4} textAnchor="start" fill={ct.axis} fontSize={12}>
+      {format(payload.value)}
+    </text>
+  )
+
   // ---------- Calculations ----------
   const yearRows = data.filter((row) => row.Year === year)
   const prevRows = data.filter((row) => row.Year === year - 1)
@@ -237,7 +244,7 @@ function App() {
 
       {/* Sticky navbar: stays at the top while scrolling */}
       <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/60 backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-950/80">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-6">
 
           {/* Logo / name */}
           <div className="flex items-center gap-2">
@@ -253,7 +260,7 @@ function App() {
               <button
                 key={y}
                 onClick={() => setYear(y)}
-                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition sm:px-4 ${
+                className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition sm:px-4 sm:text-sm ${
                   y === year
                     ? 'bg-teal-500 text-white shadow'
                     : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
@@ -276,14 +283,14 @@ function App() {
         </div>
       </nav>
 
-      <div className="mx-auto max-w-6xl px-6 py-8">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
 
         {/* Header (scrolls away) */}
         <header className="mb-10 text-center">
           <p className="text-sm font-medium uppercase tracking-widest text-teal-600 dark:text-teal-400">
             Data Analysis Project
           </p>
-          <h1 className="mt-2 bg-gradient-to-r from-teal-600 via-sky-600 to-purple-600 bg-clip-text pb-1 text-4xl font-bold text-transparent dark:from-teal-300 dark:via-sky-300 dark:to-purple-400">
+          <h1 className="mt-2 bg-gradient-to-r from-teal-600 via-sky-600 to-purple-600 bg-clip-text pb-1 text-3xl font-bold sm:text-4xl text-transparent dark:from-teal-300 dark:via-sky-300 dark:to-purple-400">
             Sri Lanka Tourism Dashboard
           </h1>
           <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
@@ -359,12 +366,13 @@ function App() {
             subtitle="Selected year is highlighted"
             className="lg:col-span-2"
           >
-            <ResponsiveContainer width="100%" height={490}>
+            <div className="h-56 lg:h-[490px]">
+            <ResponsiveContainer width="100%" height="100%">
               <BarChart data={byYear}>
                 <CartesianGrid stroke={ct.grid} vertical={false} />
                 <XAxis dataKey="year" stroke={ct.axis} tick={{ fontSize: 12 }} />
-                <YAxis tickFormatter={(v) => v / 1000000 + 'M'}
-                       stroke={ct.axis} tick={{ fontSize: 12 }} />
+                <YAxis width={40} stroke={ct.axis}
+                       tick={leftTick((v) => v / 1000000 + 'M')} />
                 <Tooltip {...tooltipStyle} cursor={{ fill: ct.cursor }} />
                 <Bar dataKey="arrivals" radius={[8, 8, 0, 0]}>
                   {byYear.map((d) => (
@@ -376,6 +384,7 @@ function App() {
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
+            </div>
           </Panel>
         </div>
 
@@ -385,12 +394,13 @@ function App() {
           subtitle="Peak in December, lowest in May, every year"
           className="mt-6"
         >
-          <ResponsiveContainer width="100%" height={350}>
+          <div className="h-52 sm:h-[350px]">
+          <ResponsiveContainer width="100%" height="100%">
             <LineChart data={monthly}>
               <CartesianGrid stroke={ct.grid} strokeDasharray="3 3" />
               <XAxis dataKey="month" stroke={ct.axis} tick={{ fontSize: 12 }} />
-              <YAxis tickFormatter={(v) => v / 1000 + 'K'}
-                     stroke={ct.axis} tick={{ fontSize: 12 }} />
+              <YAxis width={45} stroke={ct.axis}
+                     tick={leftTick((v) => v / 1000 + 'K')} />
               <Tooltip {...tooltipStyle} />
               <Legend />
               {YEARS.map((y) => (
@@ -406,6 +416,7 @@ function App() {
               ))}
             </LineChart>
           </ResponsiveContainer>
+          </div>
         </Panel>
 
         {/* Growth table */}
@@ -419,8 +430,8 @@ function App() {
               <thead className="sticky top-0 bg-white text-left text-slate-500 dark:bg-slate-900 dark:text-slate-400">
                 <tr>
                   <th className="py-2 font-medium">Country</th>
-                  <th className="py-2 text-right font-medium">2023</th>
-                  <th className="py-2 text-right font-medium">2025</th>
+                  <th className="hidden py-2 text-right font-medium sm:table-cell">2023</th>
+                  <th className="hidden py-2 text-right font-medium sm:table-cell">2025</th>
                   <th className="py-2 text-right font-medium">Change</th>
                   <th className="py-2 text-right font-medium">Growth</th>
                 </tr>
@@ -429,8 +440,8 @@ function App() {
                 {growthRows.map((r) => (
                   <tr key={r.country} className="border-t border-slate-100 dark:border-slate-800">
                     <td className="py-2 text-slate-700 dark:text-slate-200">{r.country}</td>
-                    <td className="py-2 text-right tabular-nums">{r.a23.toLocaleString()}</td>
-                    <td className="py-2 text-right tabular-nums">{r.a25.toLocaleString()}</td>
+                    <td className="hidden py-2 text-right tabular-nums sm:table-cell">{r.a23.toLocaleString()}</td>
+                    <td className="hidden py-2 text-right tabular-nums sm:table-cell">{r.a25.toLocaleString()}</td>
                     <td className="py-2 text-right tabular-nums">
                       {r.change > 0 ? '+' : ''}{r.change.toLocaleString()}
                     </td>
@@ -460,7 +471,7 @@ function App() {
             {INSIGHTS.map((item) => (
               <div
                 key={item.title}
-                className={`${BOX} w-full p-5 md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)]`}
+                className={`${BOX} w-full p-4 sm:p-5 md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)]`}
               >
                 <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${TAG_STYLES[item.tag]}`}>
                   {item.tag}
