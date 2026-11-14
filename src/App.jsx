@@ -10,6 +10,18 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const LINE_COLORS = { 2023: '#60a5fa', 2024: '#a855f7', 2025: '#14b8a6' }
 
+// Chart colors for each theme (charts need real color codes, not Tailwind classes)
+const CHART_THEME = {
+  dark: {
+    grid: '#1e293b', axis: '#64748b', bar: '#334155', cursor: '#1e293b',
+    tooltipBg: '#0f172a', tooltipBorder: '#334155', tooltipText: '#e2e8f0',
+  },
+  light: {
+    grid: '#e2e8f0', axis: '#94a3b8', bar: '#cbd5e1', cursor: '#f1f5f9',
+    tooltipBg: '#ffffff', tooltipBorder: '#e2e8f0', tooltipText: '#0f172a',
+  },
+}
+
 // Key findings and recommendations (from the full 2023–2025 analysis)
 const INSIGHTS = [
   {
@@ -46,11 +58,13 @@ const INSIGHTS = [
 
 const STEPS = ['Python (Pandas)', 'MySQL', 'Power BI', 'React + Tailwind']
 
-// Dark style for chart tooltips
-const tooltipStyle = {
-  contentStyle: { background: '#0f172a', border: '1px solid #334155', borderRadius: 8 },
-  labelStyle: { color: '#e2e8f0' },
-  formatter: (v) => v.toLocaleString(),
+// Read the saved theme (falls back to dark if nothing is saved)
+function getSavedTheme() {
+  try {
+    return localStorage.getItem('theme') || 'dark'
+  } catch {
+    return 'dark'
+  }
 }
 
 // Adds up Arrivals for each value of a column (like GROUP BY in SQL)
@@ -68,13 +82,16 @@ function topName(totals) {
   return sorted.length > 0 ? sorted[0][0] : '...'
 }
 
+// Shared card style for light and dark
+const BOX = 'rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:shadow-none'
+
 // A reusable KPI card
-function KpiCard({ label, value, note, color = 'text-white' }) {
+function KpiCard({ label, value, note, color = 'text-slate-900 dark:text-white' }) {
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-      <p className="text-sm text-slate-400">{label}</p>
+    <div className={`${BOX} p-5`}>
+      <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
       <p className={`mt-2 text-3xl font-bold ${color}`}>{value}</p>
-      <p className="mt-1 text-xs text-slate-500">{note}</p>
+      <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">{note}</p>
     </div>
   )
 }
@@ -82,18 +99,40 @@ function KpiCard({ label, value, note, color = 'text-white' }) {
 // A reusable box with a title, used around every chart
 function Panel({ title, subtitle, children, className = '' }) {
   return (
-    <div className={`rounded-2xl border border-slate-800 bg-slate-900 p-5 ${className}`}>
-      <h2 className="text-base font-semibold text-white">{title}</h2>
-      {subtitle && <p className="mb-4 text-xs text-slate-500">{subtitle}</p>}
+    <div className={`${BOX} p-5 ${className}`}>
+      <h2 className="text-base font-semibold text-slate-900 dark:text-white">{title}</h2>
+      {subtitle && <p className="mb-4 text-xs text-slate-400 dark:text-slate-500">{subtitle}</p>}
       {children}
     </div>
+  )
+}
+
+// Sun and moon icons for the theme button
+function SunIcon() {
+  return (
+    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="4" />
+      <path strokeLinecap="round" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41" />
+    </svg>
+  )
+}
+
+function MoonIcon() {
+  return (
+    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
   )
 }
 
 function App() {
   const [data, setData] = useState([])
   const [year, setYear] = useState(2025)
+  const [theme, setTheme] = useState(getSavedTheme)
+  const isDark = theme === 'dark'
+  const ct = CHART_THEME[theme] // chart colors for the current theme
 
+  // Load the CSV once
   useEffect(() => {
     Papa.parse('/data/tourism_long.csv', {
       download: true,
@@ -103,6 +142,27 @@ function App() {
       complete: (result) => setData(result.data),
     })
   }, [])
+
+  // Every time the theme changes: switch the "dark" class and remember the choice
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDark)
+    try {
+      localStorage.setItem('theme', theme)
+    } catch {
+      // storage not available: the theme still works, it just isn't remembered
+    }
+  }, [theme, isDark])
+
+  // Tooltip style that follows the theme
+  const tooltipStyle = {
+    contentStyle: {
+      background: ct.tooltipBg,
+      border: `1px solid ${ct.tooltipBorder}`,
+      borderRadius: 8,
+    },
+    labelStyle: { color: ct.tooltipText },
+    formatter: (v) => v.toLocaleString(),
+  }
 
   // ---------- Calculations ----------
   const yearRows = data.filter((row) => row.Year === year)
@@ -163,25 +223,35 @@ function App() {
 
   // ---------- Page ----------
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200">
-      <div className="mx-auto max-w-6xl px-6 py-8">
+    <div className="min-h-screen bg-slate-50 text-slate-700 transition-colors dark:bg-slate-950 dark:text-slate-200">
+      <div className="relative mx-auto max-w-6xl px-6 py-8">
+
+        {/* Theme toggle button (top right) */}
+        <button
+          onClick={() => setTheme(isDark ? 'light' : 'dark')}
+          aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={isDark ? 'Light mode' : 'Dark mode'}
+          className="absolute right-6 top-8 rounded-xl border border-slate-200 bg-white p-2.5 text-slate-600 shadow-sm transition hover:text-teal-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:shadow-none dark:hover:text-teal-400"
+        >
+          {isDark ? <SunIcon /> : <MoonIcon />}
+        </button>
 
         {/* Header */}
         <header className="mb-10 flex flex-col items-center gap-5 text-center">
           <div>
-            <p className="text-sm font-medium uppercase tracking-widest text-teal-400">
+            <p className="text-sm font-medium uppercase tracking-widest text-teal-600 dark:text-teal-400">
               Data Analysis Project
             </p>
-            <h1 className="mt-2 text-4xl font-bold text-white">
+            <h1 className="mt-2 text-4xl font-bold text-slate-900 dark:text-white">
               Sri Lanka Tourism Dashboard
             </h1>
-            <p className="mt-2 text-sm text-slate-400">
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Monthly tourist arrivals 2023–2025 · Source: SLTDA
             </p>
           </div>
 
           {/* Year selector */}
-          <div className="flex rounded-xl border border-slate-800 bg-slate-900 p-1">
+          <div className="flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
             {YEARS.map((y) => (
               <button
                 key={y}
@@ -189,7 +259,7 @@ function App() {
                 className={`rounded-lg px-5 py-2 text-sm font-medium transition ${
                   y === year
                     ? 'bg-teal-500 text-white shadow'
-                    : 'text-slate-400 hover:text-white'
+                    : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
                 }`}
               >
                 {y}
@@ -209,38 +279,42 @@ function App() {
             label="YoY Growth"
             value={growth === null ? '--' : `+${growth.toFixed(1)}%`}
             note={growth === null ? 'No 2022 data' : `vs ${year - 1}`}
-            color="text-emerald-400"
+            color="text-emerald-600 dark:text-emerald-400"
           />
           <KpiCard
             label="Top Market"
             value={topMarket}
             note={`${topShare.toFixed(1)}% of arrivals`}
-            color="text-teal-400"
+            color="text-teal-600 dark:text-teal-400"
           />
           <KpiCard
             label="Peak Month"
             value={peakMonth}
             note={`${(monthTotals[peakMonth] || 0).toLocaleString()} arrivals`}
-            color="text-purple-400"
+            color="text-purple-600 dark:text-purple-400"
           />
         </div>
 
         {/* Key insights */}
         <section className="mt-6">
-          <h2 className="text-lg font-semibold text-white">Key Insights & Recommendations</h2>
-          <p className="mb-4 text-xs text-slate-500">Based on all 3 years of data (2023–2025)</p>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+            Key Insights & Recommendations
+          </h2>
+          <p className="mb-4 text-xs text-slate-400 dark:text-slate-500">
+            Based on all 3 years of data (2023–2025)
+          </p>
           <div className="flex flex-wrap justify-center gap-4">
             {INSIGHTS.map((item) => (
               <div
                 key={item.title}
-                className="w-full rounded-2xl border border-slate-800 bg-slate-900 p-5 md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)]"
+                className={`${BOX} w-full p-5 md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)]`}
               >
-                <span className="rounded-full bg-teal-500/10 px-2.5 py-1 text-xs font-medium text-teal-400">
+                <span className="rounded-full bg-teal-500/10 px-2.5 py-1 text-xs font-medium text-teal-700 dark:text-teal-400">
                   {item.tag}
                 </span>
-                <h3 className="mt-3 font-semibold text-white">{item.title}</h3>
-                <p className="mt-1 text-sm text-slate-400">{item.finding}</p>
-                <p className="mt-3 border-t border-slate-800 pt-3 text-sm text-teal-300">
+                <h3 className="mt-3 font-semibold text-slate-900 dark:text-white">{item.title}</h3>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{item.finding}</p>
+                <p className="mt-3 border-t border-slate-200 pt-3 text-sm text-teal-700 dark:border-slate-800 dark:text-teal-300">
                   → {item.action}
                 </p>
               </div>
@@ -260,16 +334,16 @@ function App() {
                 <li key={c.country}>
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-3">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 text-xs text-slate-400">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs text-slate-500 dark:bg-slate-800 dark:text-slate-400">
                         {i + 1}
                       </span>
-                      <span className="text-slate-200">{c.country}</span>
+                      <span className="text-slate-700 dark:text-slate-200">{c.country}</span>
                     </div>
-                    <span className="font-semibold tabular-nums text-white">
+                    <span className="font-semibold tabular-nums text-slate-900 dark:text-white">
                       {c.arrivals.toLocaleString()}
                     </span>
                   </div>
-                  <div className="ml-9 mt-1.5 h-2 rounded-full bg-slate-800">
+                  <div className="ml-9 mt-1.5 h-2 rounded-full bg-slate-100 dark:bg-slate-800">
                     <div
                       className="h-2 rounded-full bg-gradient-to-r from-teal-600 to-teal-400"
                       style={{ width: `${(c.arrivals / maxTop) * 100}%` }}
@@ -287,16 +361,16 @@ function App() {
           >
             <ResponsiveContainer width="100%" height={490}>
               <BarChart data={byYear}>
-                <CartesianGrid stroke="#1e293b" vertical={false} />
-                <XAxis dataKey="year" stroke="#64748b" tick={{ fontSize: 12 }} />
+                <CartesianGrid stroke={ct.grid} vertical={false} />
+                <XAxis dataKey="year" stroke={ct.axis} tick={{ fontSize: 12 }} />
                 <YAxis tickFormatter={(v) => v / 1000000 + 'M'}
-                       stroke="#64748b" tick={{ fontSize: 12 }} />
-                <Tooltip {...tooltipStyle} cursor={{ fill: '#1e293b' }} />
+                       stroke={ct.axis} tick={{ fontSize: 12 }} />
+                <Tooltip {...tooltipStyle} cursor={{ fill: ct.cursor }} />
                 <Bar dataKey="arrivals" radius={[8, 8, 0, 0]}>
                   {byYear.map((d) => (
                     <Cell
                       key={d.year}
-                      fill={d.year === String(year) ? '#14b8a6' : '#334155'}
+                      fill={d.year === String(year) ? '#14b8a6' : ct.bar}
                     />
                   ))}
                 </Bar>
@@ -313,10 +387,10 @@ function App() {
         >
           <ResponsiveContainer width="100%" height={350}>
             <LineChart data={monthly}>
-              <CartesianGrid stroke="#1e293b" strokeDasharray="3 3" />
-              <XAxis dataKey="month" stroke="#64748b" tick={{ fontSize: 12 }} />
+              <CartesianGrid stroke={ct.grid} strokeDasharray="3 3" />
+              <XAxis dataKey="month" stroke={ct.axis} tick={{ fontSize: 12 }} />
               <YAxis tickFormatter={(v) => v / 1000 + 'K'}
-                     stroke="#64748b" tick={{ fontSize: 12 }} />
+                     stroke={ct.axis} tick={{ fontSize: 12 }} />
               <Tooltip {...tooltipStyle} />
               <Legend />
               {YEARS.map((y) => (
@@ -340,9 +414,9 @@ function App() {
           subtitle="Markets with 10,000+ arrivals in 2023, fastest growing first"
           className="mt-6"
         >
-          <div className="max-h-96 overflow-y-auto pr-4 [scrollbar-color:#334155_transparent] [scrollbar-width:thin]">
+          <div className="max-h-96 overflow-y-auto pr-4 [scrollbar-color:#cbd5e1_transparent] [scrollbar-width:thin] dark:[scrollbar-color:#334155_transparent]">
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-slate-900 text-left text-slate-400">
+              <thead className="sticky top-0 bg-white text-left text-slate-500 dark:bg-slate-900 dark:text-slate-400">
                 <tr>
                   <th className="py-2 font-medium">Country</th>
                   <th className="py-2 text-right font-medium">2023</th>
@@ -353,15 +427,17 @@ function App() {
               </thead>
               <tbody>
                 {growthRows.map((r) => (
-                  <tr key={r.country} className="border-t border-slate-800">
-                    <td className="py-2 text-slate-200">{r.country}</td>
+                  <tr key={r.country} className="border-t border-slate-100 dark:border-slate-800">
+                    <td className="py-2 text-slate-700 dark:text-slate-200">{r.country}</td>
                     <td className="py-2 text-right tabular-nums">{r.a23.toLocaleString()}</td>
                     <td className="py-2 text-right tabular-nums">{r.a25.toLocaleString()}</td>
                     <td className="py-2 text-right tabular-nums">
                       {r.change > 0 ? '+' : ''}{r.change.toLocaleString()}
                     </td>
                     <td className={`py-2 text-right font-semibold tabular-nums ${
-                      r.pct >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                      r.pct >= 0
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : 'text-rose-600 dark:text-rose-400'
                     }`}>
                       {r.pct > 0 ? '+' : ''}{r.pct.toFixed(1)}%
                     </td>
@@ -374,13 +450,13 @@ function App() {
 
         {/* About */}
         <Panel title="About this Project" className="mt-6">
-          <p className="mt-2 text-sm text-slate-400">
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
             Monthly tourist arrival data from the{' '}
             <a
               href="https://sltda.gov.lk/monthly-tourist-arrivals-reports"
               target="_blank"
               rel="noreferrer"
-              className="text-teal-400 hover:underline"
+              className="text-teal-600 hover:underline dark:text-teal-400"
             >
               Sri Lanka Tourism Development Authority (SLTDA)
             </a>
@@ -391,15 +467,15 @@ function App() {
           <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
             {STEPS.map((step, i) => (
               <div key={step} className="flex items-center gap-2">
-                <span className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1 text-slate-200">
+                <span className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
                   {step}
                 </span>
-                {i < STEPS.length - 1 && <span className="text-slate-600">→</span>}
+                {i < STEPS.length - 1 && <span className="text-slate-400 dark:text-slate-600">→</span>}
               </div>
             ))}
           </div>
 
-          <ul className="mt-4 list-disc space-y-1 pl-5 text-xs text-slate-500">
+          <ul className="mt-4 list-disc space-y-1 pl-5 text-xs text-slate-400 dark:text-slate-500">
             <li>2023 started low, so part of the growth is recovery from a low base.</li>
             <li>A few countries appear only in some years (for example, Taiwan in 2023 only).</li>
             <li>The data shows what changed, not why.</li>
@@ -418,14 +494,14 @@ function App() {
               href="https://shihari.vercel.app/"
               target="_blank"
               rel="noreferrer"
-              className="rounded-lg border border-slate-700 px-4 py-2 text-slate-200 hover:border-teal-400"
+              className="rounded-lg border border-slate-300 px-4 py-2 text-slate-700 hover:border-teal-500 dark:border-slate-700 dark:text-slate-200 dark:hover:border-teal-400"
             >
               My Portfolio
             </a>
           </div>
         </Panel>
 
-        <footer className="mt-8 text-center text-xs text-slate-600">
+        <footer className="mt-8 text-center text-xs text-slate-400 dark:text-slate-600">
           Built by Shihari Ayodya · React, Tailwind CSS, Recharts
         </footer>
       </div>

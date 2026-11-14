@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+/* Turn on dark mode when the page has the "dark" class (set by the theme button) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Hide the white outline when a chart is clicked */
+.recharts-wrapper *:focus,
+.recharts-surface:focus {
+  outline: none;
+}
