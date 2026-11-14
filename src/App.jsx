@@ -58,6 +58,15 @@ const INSIGHTS = [
 
 const STEPS = ['Python (Pandas)', 'MySQL', 'Power BI', 'React + Tailwind']
 
+// A different color for each insight tag
+const TAG_STYLES = {
+  Growth: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400',
+  Seasonality: 'bg-purple-500/10 text-purple-700 dark:text-purple-400',
+  Markets: 'bg-sky-500/10 text-sky-700 dark:text-sky-400',
+  Opportunity: 'bg-teal-500/10 text-teal-700 dark:text-teal-400',
+  Risk: 'bg-rose-500/10 text-rose-700 dark:text-rose-400',
+}
+
 // Read the saved theme (falls back to dark if nothing is saved)
 function getSavedTheme() {
   try {
@@ -83,12 +92,13 @@ function topName(totals) {
 }
 
 // Shared card style for light and dark
-const BOX = 'rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:shadow-none'
+const BOX = 'rounded-2xl border border-slate-200/70 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_30px_-12px_rgba(15,23,42,0.15)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-none'
 
 // A reusable KPI card
-function KpiCard({ label, value, note, color = 'text-slate-900 dark:text-white' }) {
+function KpiCard({ label, value, note, color = 'text-slate-900 dark:text-white', accent = 'bg-slate-400' }) {
   return (
-    <div className={`${BOX} p-5`}>
+    <div className={`${BOX} relative overflow-hidden p-5`}>
+      <span className={`absolute inset-y-0 left-0 w-1 ${accent}`} />
       <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
       <p className={`mt-2 text-3xl font-bold ${color}`}>{value}</p>
       <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">{note}</p>
@@ -223,10 +233,10 @@ function App() {
 
   // ---------- Page ----------
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-700 transition-colors dark:bg-slate-950 dark:text-slate-200">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50/70 via-slate-50 to-purple-50/70 text-slate-700 dark:from-slate-950 dark:via-slate-950 dark:to-slate-950 dark:text-slate-200">
 
       {/* Sticky navbar: stays at the top while scrolling */}
-      <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/80 backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-950/80">
+      <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/60 backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-950/80">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
 
           {/* Logo / name */}
@@ -273,7 +283,7 @@ function App() {
           <p className="text-sm font-medium uppercase tracking-widest text-teal-600 dark:text-teal-400">
             Data Analysis Project
           </p>
-          <h1 className="mt-2 text-4xl font-bold text-slate-900 dark:text-white">
+          <h1 className="mt-2 bg-gradient-to-r from-teal-600 via-sky-600 to-purple-600 bg-clip-text pb-1 text-4xl font-bold text-transparent dark:from-teal-300 dark:via-sky-300 dark:to-purple-400">
             Sri Lanka Tourism Dashboard
           </h1>
           <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
@@ -287,24 +297,28 @@ function App() {
             label="Total Arrivals"
             value={`${(total / 1000000).toFixed(2)}M`}
             note={`Tourists in ${year}`}
+            accent="bg-sky-500"
           />
           <KpiCard
             label="YoY Growth"
             value={growth === null ? '--' : `+${growth.toFixed(1)}%`}
             note={growth === null ? 'No 2022 data' : `vs ${year - 1}`}
             color="text-emerald-600 dark:text-emerald-400"
+            accent="bg-emerald-500"
           />
           <KpiCard
             label="Top Market"
             value={topMarket}
             note={`${topShare.toFixed(1)}% of arrivals`}
             color="text-teal-600 dark:text-teal-400"
+            accent="bg-teal-500"
           />
           <KpiCard
             label="Peak Month"
             value={peakMonth}
             note={`${(monthTotals[peakMonth] || 0).toLocaleString()} arrivals`}
             color="text-purple-600 dark:text-purple-400"
+            accent="bg-purple-500"
           />
         </div>
 
@@ -448,7 +462,7 @@ function App() {
                 key={item.title}
                 className={`${BOX} w-full p-5 md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)]`}
               >
-                <span className="rounded-full bg-teal-500/10 px-2.5 py-1 text-xs font-medium text-teal-700 dark:text-teal-400">
+                <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${TAG_STYLES[item.tag]}`}>
                   {item.tag}
                 </span>
                 <h3 className="mt-3 font-semibold text-slate-900 dark:text-white">{item.title}</h3>
