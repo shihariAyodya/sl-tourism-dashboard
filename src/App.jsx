@@ -224,39 +224,26 @@ function App() {
   // ---------- Page ----------
   return (
     <div className="min-h-screen bg-slate-50 text-slate-700 transition-colors dark:bg-slate-950 dark:text-slate-200">
-      <div className="relative mx-auto max-w-6xl px-6 py-8">
 
-        {/* Theme toggle button (top right) */}
-        <button
-          onClick={() => setTheme(isDark ? 'light' : 'dark')}
-          aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          title={isDark ? 'Light mode' : 'Dark mode'}
-          className="absolute right-6 top-8 rounded-xl border border-slate-200 bg-white p-2.5 text-slate-600 shadow-sm transition hover:text-teal-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:shadow-none dark:hover:text-teal-400"
-        >
-          {isDark ? <SunIcon /> : <MoonIcon />}
-        </button>
+      {/* Sticky navbar: stays at the top while scrolling */}
+      <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/80 backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-950/80">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
 
-        {/* Header */}
-        <header className="mb-10 flex flex-col items-center gap-5 text-center">
-          <div>
-            <p className="text-sm font-medium uppercase tracking-widest text-teal-600 dark:text-teal-400">
-              Data Analysis Project
-            </p>
-            <h1 className="mt-2 text-4xl font-bold text-slate-900 dark:text-white">
-              Sri Lanka Tourism Dashboard
-            </h1>
-            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-              Monthly tourist arrivals 2023–2025 · Source: SLTDA
-            </p>
+          {/* Logo / name */}
+          <div className="flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-teal-500" />
+            <span className="font-semibold text-slate-900 dark:text-white">
+              SL Tourism<span className="hidden sm:inline"> Dashboard</span>
+            </span>
           </div>
 
           {/* Year selector */}
-          <div className="flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+          <div className="flex rounded-xl border border-slate-200 bg-white p-1 dark:border-slate-800 dark:bg-slate-900">
             {YEARS.map((y) => (
               <button
                 key={y}
                 onClick={() => setYear(y)}
-                className={`rounded-lg px-5 py-2 text-sm font-medium transition ${
+                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition sm:px-4 ${
                   y === year
                     ? 'bg-teal-500 text-white shadow'
                     : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
@@ -266,6 +253,32 @@ function App() {
               </button>
             ))}
           </div>
+
+          {/* Theme toggle button */}
+          <button
+            onClick={() => setTheme(isDark ? 'light' : 'dark')}
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            title={isDark ? 'Light mode' : 'Dark mode'}
+            className="rounded-xl border border-slate-200 bg-white p-2 text-slate-600 transition hover:text-teal-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:text-teal-400"
+          >
+            {isDark ? <SunIcon /> : <MoonIcon />}
+          </button>
+        </div>
+      </nav>
+
+      <div className="mx-auto max-w-6xl px-6 py-8">
+
+        {/* Header (scrolls away) */}
+        <header className="mb-10 text-center">
+          <p className="text-sm font-medium uppercase tracking-widest text-teal-600 dark:text-teal-400">
+            Data Analysis Project
+          </p>
+          <h1 className="mt-2 text-4xl font-bold text-slate-900 dark:text-white">
+            Sri Lanka Tourism Dashboard
+          </h1>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            Monthly tourist arrivals 2023–2025 · Source: SLTDA
+          </p>
         </header>
 
         {/* KPI cards */}
