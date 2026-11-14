@@ -373,8 +373,12 @@ function App() {
                 <XAxis dataKey="year" stroke={ct.axis} tick={{ fontSize: 12 }} />
                 <YAxis width={40} stroke={ct.axis}
                        tick={leftTick((v) => v / 1000000 + 'M')} />
-                <Tooltip {...tooltipStyle} cursor={{ fill: ct.cursor }} />
-                <Bar dataKey="arrivals" radius={[8, 8, 0, 0]}>
+                <Tooltip
+                  {...tooltipStyle}
+                  itemStyle={{ color: '#14b8a6' }}
+                  cursor={{ fill: ct.cursor }}
+                />
+                <Bar dataKey="arrivals" name="Arrivals" radius={[8, 8, 0, 0]}>
                   {byYear.map((d) => (
                     <Cell
                       key={d.year}
@@ -427,7 +431,7 @@ function App() {
         >
           <div className="max-h-96 overflow-y-auto pr-4 [scrollbar-color:#cbd5e1_transparent] [scrollbar-width:thin] dark:[scrollbar-color:#334155_transparent]">
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-white text-left text-slate-500 dark:bg-slate-900 dark:text-slate-400">
+              <thead className="sticky top-0 bg-white text-left text-slate-500 shadow-[0_1px_0_#e2e8f0] dark:bg-slate-900 dark:text-slate-400 dark:shadow-[0_1px_0_#1e293b]">
                 <tr>
                   <th className="py-2 font-medium">Country</th>
                   <th className="hidden py-2 text-right font-medium sm:table-cell">2023</th>
