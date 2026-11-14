@@ -295,33 +295,6 @@ function App() {
           />
         </div>
 
-        {/* Key insights */}
-        <section className="mt-6">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-            Key Insights & Recommendations
-          </h2>
-          <p className="mb-4 text-xs text-slate-400 dark:text-slate-500">
-            Based on all 3 years of data (2023–2025)
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            {INSIGHTS.map((item) => (
-              <div
-                key={item.title}
-                className={`${BOX} w-full p-5 md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)]`}
-              >
-                <span className="rounded-full bg-teal-500/10 px-2.5 py-1 text-xs font-medium text-teal-700 dark:text-teal-400">
-                  {item.tag}
-                </span>
-                <h3 className="mt-3 font-semibold text-slate-900 dark:text-white">{item.title}</h3>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{item.finding}</p>
-                <p className="mt-3 border-t border-slate-200 pt-3 text-sm text-teal-700 dark:border-slate-800 dark:text-teal-300">
-                  → {item.action}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* Top 10 + by year */}
         <div className="mt-6 grid gap-6 lg:grid-cols-5">
           <Panel
@@ -447,6 +420,33 @@ function App() {
             </table>
           </div>
         </Panel>
+
+        {/* Key insights */}
+        <section className="mt-10">
+          <h2 className="text-center text-lg font-semibold text-slate-900 dark:text-white">
+            Key Insights & Recommendations
+          </h2>
+          <p className="mb-4 text-center text-xs text-slate-400 dark:text-slate-500">
+            Based on all 3 years of data (2023–2025)
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            {INSIGHTS.map((item) => (
+              <div
+                key={item.title}
+                className={`${BOX} w-full p-5 md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)]`}
+              >
+                <span className="rounded-full bg-teal-500/10 px-2.5 py-1 text-xs font-medium text-teal-700 dark:text-teal-400">
+                  {item.tag}
+                </span>
+                <h3 className="mt-3 font-semibold text-slate-900 dark:text-white">{item.title}</h3>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{item.finding}</p>
+                <p className="mt-3 border-t border-slate-200 pt-3 text-sm text-teal-700 dark:border-slate-800 dark:text-teal-300">
+                  → {item.action}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
 
         {/* About */}
         <Panel title="About this Project" className="mt-6">
